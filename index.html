@@ -61,14 +61,30 @@
 			var yScale = d3.scale.linear()
 				.range([height, 0]);
             
-            var colour_set = [
-                "#AA8890",
-                "#D83356",
-                "#AAFF4E",
-                "#7777FF",
-                "#FFD34E",
-                "#88CC88"
-            ]
+//            var colour_set = [
+//                "#AA8890",
+//                "#D83356",
+//                "#AAFF4E",
+//                "#7777FF",
+//                "#FFD34E",
+//                "#88CC88"
+//            ]
+//            var colour_set = [
+//                "#364547",
+//                "#43674D",
+//                "#4F8852",
+//                "#5CAA58",
+//                "#69CC5E",
+//                "#B0FDB3"
+//            ]
+//            var colour_set = [
+//                "#FC383D",
+//                "#D36064",
+//                "#AA888B",
+//                "#82AFB1",
+//                "#59D7D8",
+//                "#30FFFF"
+//            ]
 
 			d3.csv("primary_sup.csv", function(data) {
 				data.forEach(function(d) {
@@ -99,15 +115,23 @@
                     pet_LPGRate: false,
                     pet_non: false,
                     pet_nonRate: false,
+                    nuclear: true,
+                    nuclearRate: false,
                     LNG: true,
                     LNGRate: false,
                     hydro: true,
                     hydroRate: false,
-                    nuclear: true,
-                    nuclearRate: false,
                     renew: true,
                     renewRate: false
                 }
+                
+                var class_set = [];
+                Object.keys(data_option).forEach(function(element, index) {
+                    if(data_option[element]) {
+                        class_set.push(element);
+                    }
+                });
+                console.log(class_set);
                 
                 var data_keys = Object.keys(data[0]);
                 
@@ -165,9 +189,12 @@
                     })
                     .enter()
                     .append("rect")
-					.attr("fill", function(d, i) {
-                        return colour_set[i];
+                    .attr("class", function(d, i) {
+                        return class_set[i];
                     })
+//					.attr("fill", function(d, i) {
+//                        return colour_set[i];
+//                    })
 //					.attr("x", xScale.rangeBand() / 2)
 					.attr("width", xScale.rangeBand())
 //                    .call(function(selection) {

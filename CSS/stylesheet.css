@@ -1,34 +1,16 @@
+@font-face {
+    font-family: Ubuntu Light;
+    src: url(Fonts/ubuntu-font-family-0.83/Ubuntu-L.ttf);
+}
+
 body {
-    background-color: #1E1E1E;
-	font-family: sans-serif;
+    background-color: #292341;
+	font-family: Ubuntu Light;
 }
-
-/*
-svg {
-    width: 100%;
-    padding-bottom: 25%;
-}
-*/
-
-/*
-.svg-container {
-    display: inline-block;
-    position: relative;
-    width: 100%;
-    padding-bottom: 100%;  aspect ratio 
-    vertical-align: top;
-    overflow: hidden;
-}
-.svg-content-responsive {
-    display: inline-block;
-    position: absolute;
-    top: 10px;
-    left: 0;
-}
-*/
 
 .axis text {
-	font-size: 10px;
+	font-size: 0.7em;
+    fill: #FFFFFF;
 }
 
 .axis path, .axis line {
@@ -36,6 +18,52 @@ svg {
 	stroke: #AAAAAA;
 }
 
-.bar .TPES {
-	fill: #FFD34E;
+/*
+.bar .coal_total {
+	fill: #FC383D;
+}
+
+.bar .pet_total {
+    fill: #D36064;
+}
+
+.bar .nuclear {
+    fill: #AA888B;
+}
+
+.bar .LNG {
+    fill: #82AFB1;
+}
+
+.bar .hydro {
+    fill: #59D7D8;
+}
+
+.bar .renew {
+    fill: #30FFFF;
+}
+*/
+
+.coal_total {
+	fill: #FC383D;
+}
+
+.pet_total {
+    fill: #D36064;
+}
+
+.nuclear {
+    fill: #AA888B;
+}
+
+.LNG {
+    fill: #82AFB1;
+}
+
+.hydro {
+    fill: #59D7D8;
+}
+
+.renew {
+    fill: #30FFFF;
 }
