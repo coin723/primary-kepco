@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title></title>
+		<link type="text/css" rel="stylesheet" href="CSS/stylesheet.css" />
+		<script src="//d3js.org/d3.v3.min.js" charset="UTF-8"></script>
+	</head>
+	<body>
+		<script>
+			var margin = {top: 50, right: 50, bottom: 50, left: 50};
+			var width, height;            
+            
+//            window.onload = setSize();
+//            window.onresize = setSize();
+//            
+//            function setSize() {
+//                var innerWidth = window.innerWidth;
+//                var innerHeight = window.innerHeight;
+//
+//                if(innerHeight * 16 / 9 < innerWidth) {
+//                    width = innerHeight * 16 / 9 - margin.right - margin.left;
+//                    height = innerHeight - margin.top - margin.bottom;
+//                } else {
+//                    width = innerWidth - margin.right - margin.left;
+//                    height = innerWidth * 9 / 16 - margin.top - margin.bottom;
+//                }
+//            }
+            
+            var innerWidth = window.innerWidth;
+            var innerHeight = window.innerHeight;
+
+            if(innerHeight * 16 / 9 < innerWidth) {
+                width = innerHeight * 16 / 9 - margin.right - margin.left;
+                height = innerHeight - margin.top - margin.bottom;
+            } else {
+                width = innerWidth - margin.right - margin.left;
+                height = innerWidth * 9 / 16 - margin.top - margin.bottom;
+            }
+            
+            var svg = d3.select("body")
+                .append("div")
+                .attr("class", "svg-container")
+                .append("svg")
+                .attr("width", width + margin.right + margin.left)
+                .attr("height", height + margin.top + margin.bottom)
+//                .attr("preserveAspectRatio", "xMinYMin meet")
+//                .attr("viewBox", "0 0 600 400")
+                .append("g")
+                .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+            
+//            width = document.querySelector("svg").offsetWidth - margin.right - margin.left;
+//            height = document.querySelector("svg").offsetHeight - margin.top - margin.bottom;
+//            
+//            console.log(window.innerWidth);
+//            console.log(width);
+			
+			var xScale = d3.scale.ordinal()
+				.rangeBands([0, width], .3);
+
+			var yScale = d3.scale.linear()
+				.range([height, 0]);
+            
+            var colour_set = [
+                "#AA8890",
+                "#D83356",
+                "#AAFF4E",
+                "#7777FF",
+                "#FFD34E",
+                "#88CC88"
+            ]
+
+			d3.csv("primary_sup.csv", function(data) {
+				data.forEach(function(d) {
+					Object.keys(d).forEach(function(element) {
+						d[element] = +d[element];
+					})
+				});
+
+				var dMax = d3.max(data, function(d) {
+						return d.TPES;
+					});
+                
+                var data_option = {
+                    year: false,
+                    TPES: false,
+                    growth_rate: false,
+                    coal_total: true,
+                    coal_totalRate: false,
+                    coal_anth: false,
+                    coal_anthRate: false,
+                    coal_bit: false,
+                    coal_bitRate: false,
+                    pet_total: true,
+                    pet_totalRate: false,
+                    pet_energy: false,
+                    pet_energyRate: false,
+                    pet_LPG: false,
+                    pet_LPGRate: false,
+                    pet_non: false,
+                    pet_nonRate: false,
+                    LNG: true,
+                    LNGRate: false,
+                    hydro: true,
+                    hydroRate: false,
+                    nuclear: true,
+                    nuclearRate: false,
+                    renew: true,
+                    renewRate: false
+                }
+                
+                var data_keys = Object.keys(data[0]);
+                
+				data = d3.nest()
+					.key(function(d) {
+						return d.year;
+					})
+                    .rollup(function(leaves) {
+                        var rollup = [];
+                        data_keys.forEach(function(element) {
+                            if(data_option[element]) {
+                                rollup.push(leaves[0][element]);
+                            }
+                        });
+                        return rollup;
+                    })
+					.map(data, d3.map);
+                
+                var years = data.keys();
+
+				xScale.domain(years);
+
+				yScale.domain([0, dMax]);
+
+				var xAxis = d3.svg.axis()
+					.scale(xScale)
+					.orient("bottom");
+
+				var yAxis = d3.svg.axis()
+					.scale(yScale)
+					.orient("left");
+
+				svg.append("g")
+					.attr("class", "axis")
+					.attr("transform", "translate(0, " + height + ")")
+					.call(xAxis);
+
+				svg.append("g")
+					.attr("class", "axis")
+					.call(yAxis);
+                
+				var g_bar = svg.selectAll(".bar")
+					.data(years)
+					.enter()
+					.append("g")
+					.attr("class", "bar")
+                    .attr("transform", function(d) {
+                        return "translate(" + xScale(d) + ", 0)"
+                    });
+                
+				var rects = g_bar.selectAll("rect")
+                    .data(function(year) {
+                        var gottenData = data.get(year);
+                        return gottenData;
+                    })
+                    .enter()
+                    .append("rect")
+					.attr("fill", function(d, i) {
+                        return colour_set[i];
+                    })
+//					.attr("x", xScale.rangeBand() / 2)
+					.attr("width", xScale.rangeBand())
+//                    .call(function(selection) {
+//                        var currentYear = d3.select(this[0].parentNode);
+//                        console.log(currentYear);
+//                        var dataArray = data.get(currentYear);
+////                        var dataArray = selection.data();
+//                        
+//                        selection
+//                            .attr("y", function(d, i) {
+//                                var result = yScale(d);
+//                                switch(i) {
+//                                    case 0:
+//                                        break;
+//                                    default:
+//                                        for(var j = 0; j < i; j++) {
+//                                            result -= height - yScale(dataArray[j]);
+//                                        }
+//                                        break;
+//                                }
+//                                return result;
+//                            })
+//                    })
+                    .attr("y", function(d, i) {
+                        var currentYear = d3.select(this.parentNode).data();
+                        var dataArray = data.get(currentYear);
+                        
+                        var result = yScale(d);
+                        switch(i) {
+                            case 0:
+                                break;
+                            default:
+                                for(var j = 0; j < i; j++) {
+                                    result -= height - yScale(dataArray[j]);
+                                }
+                                break;
+                        }
+                        return result;
+                    })
+					.attr("height", function(d) {
+                        return height - yScale(d);
+                    });
+                
+//                g_bar.append("rect")
+//                    .attr("class", "renew")
+//                    .attr("x", function(year) {
+//                        return xScale(year);
+//                    })
+//                    .attr("width", xScale.rangeBand())
+//                    .attr("y", function(year) {
+//                        return yScale(data.get(year)[0].renew);
+//                    })
+//                    .attr("height", function(year) {
+//                        return height - yScale(data)
+//                    })
+			});
+		</script>
+	</body>
+</html>
