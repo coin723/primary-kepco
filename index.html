@@ -8,7 +8,7 @@
 	</head>
 	<body>
 		<script>
-			var margin = {top: 50, right: 50, bottom: 50, left: 50};
+			var margin = {top: 30, right: 50, bottom: null, left: 50};
 			var width, height;            
             
 //            window.onload = setSize();
@@ -31,15 +31,18 @@
             var innerHeight = window.innerHeight;
 
             if(innerHeight * 16 / 9 < innerWidth) {
+                margin.bottom = innerHeight * 16 / 9 / 7;
                 width = innerHeight * 16 / 9 - margin.right - margin.left;
                 height = innerHeight - margin.top - margin.bottom;
             } else {
+                margin.bottom = innerWidth / 7;
                 width = innerWidth - margin.right - margin.left;
                 height = innerWidth * 9 / 16 - margin.top - margin.bottom;
             }
             
             var svg = d3.select("body")
                 .append("svg")
+                .attr("class", "canvas")
                 .attr("width", width + margin.right + margin.left)
                 .attr("height", height + margin.top + margin.bottom)
 //                .attr("preserveAspectRatio", "xMinYMin meet")
@@ -236,18 +239,7 @@
                         return height - yScale(d);
                     });
                 
-//                g_bar.append("rect")
-//                    .attr("class", "renew")
-//                    .attr("x", function(year) {
-//                        return xScale(year);
-//                    })
-//                    .attr("width", xScale.rangeBand())
-//                    .attr("y", function(year) {
-//                        return yScale(data.get(year)[0].renew);
-//                    })
-//                    .attr("height", function(year) {
-//                        return height - yScale(data)
-//                    })
+                
 			});
 		</script>
 	</body>
