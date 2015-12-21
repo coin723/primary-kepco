@@ -3,6 +3,11 @@
     src: url(Fonts/ubuntu-font-family-0.83/Ubuntu-L.ttf);
 }
 
+@font-face {
+    font-family: Ubuntu Medium;
+    src: url(Fonts/ubuntu-font-family-0.83/Ubuntu-M.ttf);
+}
+
 body {
     background-color: #292341;
 	font-family: Ubuntu Light;
@@ -66,4 +71,11 @@ body {
 
 .renew {
     fill: #30FFFF;
+}
+
+
+.index text {
+    fill: #FFFFFF;
+    font-family: Ubuntu Medium;
+    font-size: 1.4em;
 }

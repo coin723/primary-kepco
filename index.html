@@ -9,33 +9,17 @@
 	<body>
 		<script>
 			var margin = {top: 30, right: 50, bottom: null, left: 50};
-			var width, height;            
-            
-//            window.onload = setSize();
-//            window.onresize = setSize();
-//            
-//            function setSize() {
-//                var innerWidth = window.innerWidth;
-//                var innerHeight = window.innerHeight;
-//
-//                if(innerHeight * 16 / 9 < innerWidth) {
-//                    width = innerHeight * 16 / 9 - margin.right - margin.left;
-//                    height = innerHeight - margin.top - margin.bottom;
-//                } else {
-//                    width = innerWidth - margin.right - margin.left;
-//                    height = innerWidth * 9 / 16 - margin.top - margin.bottom;
-//                }
-//            }
+			var width, height;
             
             var innerWidth = window.innerWidth;
             var innerHeight = window.innerHeight;
 
             if(innerHeight * 16 / 9 < innerWidth) {
-                margin.bottom = innerHeight * 16 / 9 / 7;
+                margin.bottom = innerHeight / 5;
                 width = innerHeight * 16 / 9 - margin.right - margin.left;
                 height = innerHeight - margin.top - margin.bottom;
             } else {
-                margin.bottom = innerWidth / 7;
+                margin.bottom = innerWidth * 9 / 16 / 5;
                 width = innerWidth - margin.right - margin.left;
                 height = innerWidth * 9 / 16 - margin.top - margin.bottom;
             }
@@ -45,56 +29,23 @@
                 .attr("class", "canvas")
                 .attr("width", width + margin.right + margin.left)
                 .attr("height", height + margin.top + margin.bottom)
-//                .attr("preserveAspectRatio", "xMinYMin meet")
-//                .attr("viewBox", "0 0 600 400")
                 .append("g")
                 .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
             
-//            width = document.querySelector("svg").offsetWidth - margin.right - margin.left;
-//            height = document.querySelector("svg").offsetHeight - margin.top - margin.bottom;
-//            
-//            console.log(window.innerWidth);
-//            console.log(width);
-			
 			var xScale = d3.scale.ordinal()
 				.rangeBands([0, width], .3);
 
 			var yScale = d3.scale.linear()
 				.range([height, 0]);
-            
-//            var colour_set = [
-//                "#AA8890",
-//                "#D83356",
-//                "#AAFF4E",
-//                "#7777FF",
-//                "#FFD34E",
-//                "#88CC88"
-//            ]
-//            var colour_set = [
-//                "#364547",
-//                "#43674D",
-//                "#4F8852",
-//                "#5CAA58",
-//                "#69CC5E",
-//                "#B0FDB3"
-//            ]
-//            var colour_set = [
-//                "#FC383D",
-//                "#D36064",
-//                "#AA888B",
-//                "#82AFB1",
-//                "#59D7D8",
-//                "#30FFFF"
-//            ]
 
-			d3.csv("primary_sup.csv", function(data) {
-				data.forEach(function(d) {
+			d3.csv("primary_sup.csv", function(csvData) {
+				csvData.forEach(function(d) {
 					Object.keys(d).forEach(function(element) {
 						d[element] = +d[element];
 					})
 				});
 
-				var dMax = d3.max(data, function(d) {
+				var dMax = d3.max(csvData, function(d) {
 						return d.TPES;
 					});
                 
@@ -127,16 +78,22 @@
                 }
                 
                 var class_set = [];
-                Object.keys(data_option).forEach(function(element, index) {
+                Object.keys(data_option).forEach(function(element) {
                     if(data_option[element]) {
                         class_set.push(element);
                     }
                 });
-                console.log(class_set);
                 
-                var data_keys = Object.keys(data[0]);
+                var data_rate = [];
                 
-				data = d3.nest()
+                class_set.forEach(function(element) {
+                    data_rate.push(element + "Rate");
+                });
+                console.log(data_rate);
+                
+                var data_keys = Object.keys(csvData[0]);
+                
+				var data = d3.nest()
 					.key(function(d) {
 						return d.year;
 					})
@@ -149,7 +106,7 @@
                         });
                         return rollup;
                     })
-					.map(data, d3.map);
+					.map(csvData, d3.map);
                 
                 var years = data.keys();
 
@@ -193,32 +150,7 @@
                     .attr("class", function(d, i) {
                         return class_set[i];
                     })
-//					.attr("fill", function(d, i) {
-//                        return colour_set[i];
-//                    })
-//					.attr("x", xScale.rangeBand() / 2)
 					.attr("width", xScale.rangeBand())
-//                    .call(function(selection) {
-//                        var currentYear = d3.select(this[0].parentNode);
-//                        console.log(currentYear);
-//                        var dataArray = data.get(currentYear);
-////                        var dataArray = selection.data();
-//                        
-//                        selection
-//                            .attr("y", function(d, i) {
-//                                var result = yScale(d);
-//                                switch(i) {
-//                                    case 0:
-//                                        break;
-//                                    default:
-//                                        for(var j = 0; j < i; j++) {
-//                                            result -= height - yScale(dataArray[j]);
-//                                        }
-//                                        break;
-//                                }
-//                                return result;
-//                            })
-//                    })
                     .attr("y", function(d, i) {
                         var currentYear = d3.select(this.parentNode).data();
                         var dataArray = data.get(currentYear);
@@ -239,7 +171,36 @@
                         return height - yScale(d);
                     });
                 
+                var indexWidth = width / class_set.length;
                 
+                var rects_index = d3.select(".canvas")
+                    .append("g")
+                    .attr("class", "indices")
+                    .attr("transform", "translate(" + margin.left + ", " + (height + margin.top + 30) + ")")
+                    .selectAll(".index")
+                    .data(class_set)
+                    .enter()
+                    .append("g")
+                    .classed("index", true)
+                    .attr("transform", function(d, i) {
+                        return "translate(" + indexWidth * i + ", 0)";
+                    });
+                
+                rects_index.append("rect")
+                    .attr("width", indexWidth)
+                    .attr("height", margin.bottom)
+                    .attr("class", function(d) {
+                        return d;
+                    });
+                
+                rects_index.append("text")
+                    .text(function(d, i) {
+                        console.log(csvData);
+                        return csvData[csvData.length - 1][data_rate[i]] + "%"
+                    })
+                    .attr("dy", 22)
+                    .attr("dx", indexWidth)
+                    .attr("text-anchor", "end");
 			});
 		</script>
 	</body>
