@@ -84,12 +84,12 @@
                     }
                 });
                 
-                var data_rate = [];
+                var rate_set = [];
                 
                 class_set.forEach(function(element) {
-                    data_rate.push(element + "Rate");
+                    rate_set.push(element + "Rate");
                 });
-                console.log(data_rate);
+                console.log(rate_set);
                 
                 var data_keys = Object.keys(csvData[0]);
                 
@@ -196,7 +196,7 @@
                 rects_index.append("text")
                     .text(function(d, i) {
                         console.log(csvData);
-                        return csvData[csvData.length - 1][data_rate[i]] + "%"
+                        return csvData[csvData.length - 1][rate_set[i]] + "%"
                     })
                     .attr("dy", 22)
                     .attr("dx", indexWidth)
