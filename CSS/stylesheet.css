@@ -40,6 +40,10 @@ svg {
 	stroke: #AAAAAA;
 }
 
+.magnify {
+    font-size: 16px !important;
+}
+
 .coal_total {
 	fill: #FC383D;
 }
@@ -64,11 +68,10 @@ svg {
     fill: #30FFFF;
 }
 
-.index g text.name {
+.index text.name {
     fill: #000000;
     font-family: Ubuntu Medium;
-    font-size: 11px;
-    display: none;
+    font-size: 20px;
 }
 
 .index g text.rate {

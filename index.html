@@ -144,6 +144,13 @@
 					.attr("class", "axis y")
 					.call(yAxis);
                 
+                var xTicks = document.querySelectorAll("g.x g.tick");
+                
+                for(var i = 0; i < xTicks.length; i++) {
+                    var textElement = xTicks.item(i).querySelector("text");
+                    textElement.setAttribute("class", "y" + textElement.innerHTML);
+                }
+                
 				var g_bar = svg.selectAll(".bar")
 					.data(years)
 					.enter()
@@ -188,6 +195,8 @@
                 
                 var indexWidth = width / class_set.length;
                 
+                var rate_name = ["석탄", "석유", "원자력", "천연가스", "수력", "신재생"];
+                
                 var rects_index = d3.select(".canvas")
                     .append("g")
                     .attr("class", "indices")
@@ -207,14 +216,12 @@
                     .attr("width", indexWidth)
                     .attr("height", margin.bottom);
                 
-                var rate_name = {
-                    coal_totalRate: "석탄",
-                    pet_totalRate: "석유",
-                    nuclearRate: "원자력",
-                    LNGRate: "천연가스",
-                    hydroRate: "수력",
-                    renewRate: "신재생"
-                };
+                rects_index.append("text")
+                    .attr("class", "name")
+                    .text(function(d, i) {
+                        return rate_name[i];
+                    })
+                    .attr("dy", 20);
                 
                 var text_g = rects_index.append("g")
                     .attr("class", function(d) {
@@ -230,51 +237,46 @@
                 
                 text_g.append("text")
                     .attr("class", function(d, i) {
-                        return "name y" + years[i];
-                    })
-                    .text(function(d) {
-                        var rate = d3.select(this.parentNode.parentNode.parentNode).data();
-                        return rate_name[rate];
-                    })
-                    .attr("y", 10)
-                    .attr("dx", indexWidth)
-                    .attr("text-anchor", "end");
-                
-                text_g.append("text")
-                    .attr("class", function(d, i) {
                         return "rate y" + years[i];
                     })
                     .text(function(d, i) {
                         return d + "%"
                     })
                     .attr("y", margin.bottom)
-                    .attr("dy", -30)
+                    .attr("dy", -33)
                     .attr("dx", indexWidth)
                     .attr("text-anchor", "end");
                 
-                rects.on("click", function(d) {
-                    var selector = ".index text.y" + d3.select(this.parentNode).data();
+                rects.on("mouseover", function(d) {
+                        var currentYear = d3.select(this.parentNode).data();
                     
-                    var otherVisible = document.querySelectorAll("text.visible");
+                        var selector = ".index text.y" + currentYear;
+
+//                        var otherVisible = document.querySelectorAll("text.visible");
+//
+//                        for(var i = 0; i < otherVisible.length; i++) {
+//                            otherVisible.item(i).classList.toggle("visible");
+//                        }
+
+                        var texts = document.querySelectorAll(selector);
+
+                        for(var i = 0; i < texts.length; i++) {
+                            texts.item(i).classList.toggle("visible");
+                        }
+                        
+                        document.querySelector("g.x g.tick .y" + currentYear).classList.toggle("magnify");
+                    })
+                    .on("mouseout", function(d) {
+                        var currentYear = d3.select(this.parentNode).data();
                     
-                    for(var i = 0; i < otherVisible.length; i++) {
-                        otherVisible.item(i).classList.toggle("visible");
-                    }
-//                    d3.selectAll(".index g text")
-//                        .classed("visible", function() {
-//                            if(this.classList.contains("visible")) {
-//                                return false;
-//                            } else {
-//                                return true;
-//                            }
-//                        });
-//                    
-                    var texts = document.querySelectorAll(selector);
+                        var otherVisible = document.querySelectorAll("text.visible");
+
+                        for(var i = 0; i < otherVisible.length; i++) {
+                            otherVisible.item(i).classList.toggle("visible");
+                        }
                     
-                    for(var i = 0; i < texts.length; i++) {
-                        texts.item(i).classList.toggle("visible");
-                    }
-                });
+                        document.querySelector("g.x g.tick .y" + currentYear).classList.toggle("magnify");
+                    });
 			});
 		</script>
 	</body>
