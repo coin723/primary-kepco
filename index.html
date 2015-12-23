@@ -2,24 +2,25 @@
 <html>
 	<head>
 		<meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1" />
 		<title></title>
 		<link type="text/css" rel="stylesheet" href="CSS/stylesheet.css" />
 		<script src="//d3js.org/d3.v3.min.js" charset="UTF-8"></script>
 	</head>
 	<body>
 		<script>
-			var margin = {top: 30, right: 50, bottom: null, left: 50};
+			var margin = {top: 30, right: 50, bottom: null, left: 70};
 			var width, height;
             
             var innerWidth = window.innerWidth;
             var innerHeight = window.innerHeight;
 
             if(innerHeight * 16 / 9 < innerWidth) {
-                margin.bottom = innerHeight / 5;
+                margin.bottom = innerHeight / 6;
                 width = innerHeight * 16 / 9 - margin.right - margin.left;
                 height = innerHeight - margin.top - margin.bottom;
             } else {
-                margin.bottom = innerWidth * 9 / 16 / 5;
+                margin.bottom = innerWidth * 9 / 16 / 6;
                 width = innerWidth - margin.right - margin.left;
                 height = innerWidth * 9 / 16 - margin.top - margin.bottom;
             }
@@ -27,8 +28,12 @@
             var svg = d3.select("body")
                 .append("svg")
                 .attr("class", "canvas")
-                .attr("width", width + margin.right + margin.left)
-                .attr("height", height + margin.top + margin.bottom)
+//                .attr("width", width + margin.right + margin.left)
+//                .attr("height", height + margin.top + margin.bottom)
+                .attr("viewBox", function() {
+                    return "0 0 " + window.innerWidth + " " + window.innerHeight;
+                })
+//                .attr("preserveAspectRatio", "none")
                 .append("g")
                 .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
             
@@ -85,11 +90,9 @@
                 });
                 
                 var rate_set = [];
-                
                 class_set.forEach(function(element) {
                     rate_set.push(element + "Rate");
                 });
-                console.log(rate_set);
                 
                 var data_keys = Object.keys(csvData[0]);
                 
@@ -109,6 +112,16 @@
 					.map(csvData, d3.map);
                 
                 var years = data.keys();
+                
+                var data_rate = d3.map();
+                
+                rate_set.forEach(function(rate, i) {
+                    var group = [];
+                    csvData.forEach(function(d, j) {
+                        group.push(d[rate]);
+                    });
+                    data_rate.set(rate, group);
+                });
 
 				xScale.domain(years);
 
@@ -123,19 +136,21 @@
 					.orient("left");
 
 				svg.append("g")
-					.attr("class", "axis")
+					.attr("class", "axis x")
 					.attr("transform", "translate(0, " + height + ")")
 					.call(xAxis);
 
 				svg.append("g")
-					.attr("class", "axis")
+					.attr("class", "axis y")
 					.call(yAxis);
                 
 				var g_bar = svg.selectAll(".bar")
 					.data(years)
 					.enter()
 					.append("g")
-					.attr("class", "bar")
+					.attr("class", function(d) {
+                        return "bar y" + d;
+                    })
                     .attr("transform", function(d) {
                         return "translate(" + xScale(d) + ", 0)"
                     });
@@ -178,29 +193,88 @@
                     .attr("class", "indices")
                     .attr("transform", "translate(" + margin.left + ", " + (height + margin.top + 30) + ")")
                     .selectAll(".index")
-                    .data(class_set)
+                    .data(rate_set)
                     .enter()
                     .append("g")
-                    .classed("index", true)
+                    .attr("class", function(d, i) {
+                        return class_set[i] + " index";
+                    })
                     .attr("transform", function(d, i) {
                         return "translate(" + indexWidth * i + ", 0)";
                     });
                 
                 rects_index.append("rect")
                     .attr("width", indexWidth)
-                    .attr("height", margin.bottom)
+                    .attr("height", margin.bottom);
+                
+                var rate_name = {
+                    coal_totalRate: "석탄",
+                    pet_totalRate: "석유",
+                    nuclearRate: "원자력",
+                    LNGRate: "천연가스",
+                    hydroRate: "수력",
+                    renewRate: "신재생"
+                };
+                
+                var text_g = rects_index.append("g")
                     .attr("class", function(d) {
                         return d;
-                    });
-                
-                rects_index.append("text")
-                    .text(function(d, i) {
-                        console.log(csvData);
-                        return csvData[csvData.length - 1][rate_set[i]] + "%"
                     })
-                    .attr("dy", 22)
+                    .selectAll("g")
+                    .data(function(rate) {
+                        var gottenData = data_rate.get(rate);
+                        return gottenData;
+                    })
+                    .enter()
+                    .append("g");
+                
+                text_g.append("text")
+                    .attr("class", function(d, i) {
+                        return "name y" + years[i];
+                    })
+                    .text(function(d) {
+                        var rate = d3.select(this.parentNode.parentNode.parentNode).data();
+                        return rate_name[rate];
+                    })
+                    .attr("y", 10)
                     .attr("dx", indexWidth)
                     .attr("text-anchor", "end");
+                
+                text_g.append("text")
+                    .attr("class", function(d, i) {
+                        return "rate y" + years[i];
+                    })
+                    .text(function(d, i) {
+                        return d + "%"
+                    })
+                    .attr("y", margin.bottom)
+                    .attr("dy", -30)
+                    .attr("dx", indexWidth)
+                    .attr("text-anchor", "end");
+                
+                rects.on("click", function(d) {
+                    var selector = ".index text.y" + d3.select(this.parentNode).data();
+                    
+                    var otherVisible = document.querySelectorAll("text.visible");
+                    
+                    for(var i = 0; i < otherVisible.length; i++) {
+                        otherVisible.item(i).classList.toggle("visible");
+                    }
+//                    d3.selectAll(".index g text")
+//                        .classed("visible", function() {
+//                            if(this.classList.contains("visible")) {
+//                                return false;
+//                            } else {
+//                                return true;
+//                            }
+//                        });
+//                    
+                    var texts = document.querySelectorAll(selector);
+                    
+                    for(var i = 0; i < texts.length; i++) {
+                        texts.item(i).classList.toggle("visible");
+                    }
+                });
 			});
 		</script>
 	</body>

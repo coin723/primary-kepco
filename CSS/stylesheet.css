@@ -8,46 +8,37 @@
     src: url(Fonts/ubuntu-font-family-0.83/Ubuntu-M.ttf);
 }
 
+@font-face {
+    font-family: Ubuntu Bold;
+    src: url(Fonts/ubuntu-font-family-0.83/Ubuntu-B.ttf);
+}
+
 body {
     background-color: #292341;
 	font-family: Ubuntu Light;
 }
 
+svg {
+    width: 100%;
+    height: auto;
+}
+
 .axis text {
-	font-size: 0.7em;
     fill: #FFFFFF;
+}
+
+.axis.x text {
+    font-size: 8px;
+}
+
+.axis.y text {
+    font-size: 11px;
 }
 
 .axis path, .axis line {
 	fill: none;
 	stroke: #AAAAAA;
 }
-
-/*
-.bar .coal_total {
-	fill: #FC383D;
-}
-
-.bar .pet_total {
-    fill: #D36064;
-}
-
-.bar .nuclear {
-    fill: #AA888B;
-}
-
-.bar .LNG {
-    fill: #82AFB1;
-}
-
-.bar .hydro {
-    fill: #59D7D8;
-}
-
-.bar .renew {
-    fill: #30FFFF;
-}
-*/
 
 .coal_total {
 	fill: #FC383D;
@@ -73,9 +64,20 @@ body {
     fill: #30FFFF;
 }
 
+.index g text.name {
+    fill: #000000;
+    font-family: Ubuntu Medium;
+    font-size: 11px;
+    display: none;
+}
 
-.index text {
+.index g text.rate {
     fill: #FFFFFF;
     font-family: Ubuntu Medium;
-    font-size: 1.4em;
+    font-size: 30px;
+    display: none;
+}
+
+.index .visible {
+    display: block !important;
 }
