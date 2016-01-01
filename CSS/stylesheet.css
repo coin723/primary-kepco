@@ -44,6 +44,10 @@ svg {
     font-size: 16px !important;
 }
 
+.bar rect.invisible {
+    display: none;
+}
+
 .coal_total {
 	fill: #FC383D;
 }

@@ -9,7 +9,16 @@
 	</head>
 	<body>
 		<script>
-            //test
+            function resetRects(DOM, scale) {
+                d3.select(DOM)
+                    .attr("height", function(d) {
+                        return height - scale(d);
+                    })
+                    .attr("y", function(d) {
+                        return scale(d);
+                    });
+            };
+            
 			var margin = {top: 30, right: 50, bottom: null, left: 70};
 			var width, height;
             
@@ -136,12 +145,12 @@
 					.scale(yScale)
 					.orient("left");
 
-				svg.append("g")
+				var xAxis_appended = svg.append("g")
 					.attr("class", "axis x")
 					.attr("transform", "translate(0, " + height + ")")
 					.call(xAxis);
 
-				svg.append("g")
+				var yAxis_appended = svg.append("g")
 					.attr("class", "axis y")
 					.call(yAxis);
                 
@@ -277,6 +286,96 @@
                         }
                     
                         document.querySelector("g.x g.tick .y" + currentYear).classList.toggle("magnify");
+                    });
+                
+                var bar_rects = d3.selectAll(".bar rect");
+                
+                var indexObj = {
+                    coal_total: 0,
+                    pet_total: 1,
+                    nuclear: 2,
+                    LNG: 3,
+                    hydro: 4,
+                    renew: 5
+                };
+                
+                rects_index.on("mouseover", function(d) {
+                        var selector = this.classList.item(0);
+                    
+                        var tempMax = d3.max(csvData, function(d) {
+                            return d[selector];
+                        });
+                    
+                        yScale.domain([0, tempMax]);
+                    
+                        var yAxis_temp = d3.svg.axis()
+                            .scale(yScale)
+                            .orient("left");
+                        
+                        yAxis_appended.call(yAxis_temp);
+                    
+                        bar_rects.each(function(d, i) {
+                                var classList = this.classList;
+                                
+                                if(classList.contains(selector)) {
+                                    classList.remove("invisible");
+                                    
+                                    d3.select(this)
+                                        .attr("height", function(d) {
+                                            return height - yScale(d);
+                                        })
+                                        .attr("y", function(d) {
+                                            return yScale(d);
+                                        });
+                                } else {
+                                    classList.add("invisible");
+                                }
+                            
+//                                if(!classList.contains(selector) && !classList.contains("invisible")) {
+//                                    classList.add("invisible");
+//                                }
+                            });
+                        
+                        
+                    })
+                    .on("mouseout", function(d) {
+                        var selector = this.classList.item(0);
+                        
+                        yScale.domain([0, dMax]);
+                    
+                        yAxis_appended.call(yAxis);
+                        
+                        bar_rects.each(function(d, i) {
+                                var classList = this.classList;
+                            
+                                if(classList.contains(selector)) {
+                                    d3.select(this)
+                                        .attr("height", function(d) {
+                                            return height - yScale(d);
+                                        })
+                                        .attr("y", function(d, i) {
+                                            var indexNum = indexObj[selector];
+                                        
+                                            var currentYear = d3.select(this.parentNode).data();
+                                            var dataArray = data.get(currentYear);
+
+                                            var result = yScale(d);
+                                            switch(indexNum) {
+                                                case 0:
+                                                    break;
+                                                default:
+                                                    for(var j = 0; j < indexNum; j++) {
+                                                        result -= height - yScale(dataArray[j]);
+                                                    }
+                                                    break;
+                                            }
+                                        
+                                            return result;
+                                        });
+                                }
+                            
+                                this.classList.remove("invisible");
+                            });
                     });
 			});
 		</script>
